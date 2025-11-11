@@ -11,6 +11,7 @@ PRPs/specs
 PRPs/reviews/
 /logs/
 .zed
+.vscode/
 tmp/
 temp/
 UAT/
