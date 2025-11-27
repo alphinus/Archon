@@ -55,9 +55,13 @@ RUN mkdir -p /repos /tmp/agent-work-orders && \
     chown -R agentuser:agentuser /repos /tmp/agent-work-orders && \
     chmod -R 755 /repos /tmp/agent-work-orders
 
-# Install Claude CLI for non-root user
+ARG SKIP_CLAUDE_INSTALL=true
 USER agentuser
-RUN curl -fsSL https://claude.ai/install.sh | bash
+RUN if [ "$SKIP_CLAUDE_INSTALL" != "true" ]; then \
+      curl -fsSL https://claude.ai/install.sh | bash; \
+    else \
+      echo "Skipping Claude CLI install (SKIP_CLAUDE_INSTALL=true)"; \
+    fi
 
 # Configure git to use gh CLI for GitHub authentication
 # This allows git clone to authenticate using GH_TOKEN environment variable

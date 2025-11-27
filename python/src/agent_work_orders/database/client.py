@@ -9,6 +9,7 @@ from typing import Any
 
 from supabase import Client, create_client
 
+from ..config import config
 from ..utils.structured_logger import get_logger
 
 logger = get_logger(__name__)
@@ -60,6 +61,14 @@ async def check_database_health() -> dict[str, Any]:
         >>> if health["status"] == "healthy":
         ...     print("Database is ready")
     """
+    # File/memory mode: skip Supabase checks
+    if config.STATE_STORAGE_TYPE.lower() in {"file", "memory"}:
+        logger.info(
+          "database_health_check_skipped",
+          storage_type=config.STATE_STORAGE_TYPE.lower()
+        )
+        return {"status": "healthy", "tables_exist": False, "skipped": True}
+
     try:
         client = get_agent_work_orders_client()
 

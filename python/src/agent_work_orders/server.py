@@ -136,7 +136,8 @@ async def health_check() -> dict[str, Any]:
         health_status["message"] = "Agent work orders feature is disabled. Set ENABLE_AGENT_WORK_ORDERS=true to enable."
         return health_status
 
-    # Check Claude CLI
+    # Check Claude CLI (optional: skip in file/memory mode)
+    claude_required = config.STATE_STORAGE_TYPE.lower() == "supabase" or os.getenv("REQUIRE_CLAUDE_CLI") == "true"
     try:
         result = subprocess.run(
             [config.CLAUDE_CLI_PATH, "--version"],
@@ -147,11 +148,13 @@ async def health_check() -> dict[str, Any]:
         health_status["dependencies"]["claude_cli"] = {
             "available": result.returncode == 0,
             "version": result.stdout.strip() if result.returncode == 0 else None,
+            "required": claude_required,
         }
     except Exception as e:
         health_status["dependencies"]["claude_cli"] = {
             "available": False,
             "error": str(e),
+            "required": claude_required,
         }
 
     # Check git
@@ -159,7 +162,7 @@ async def health_check() -> dict[str, Any]:
         "available": shutil.which("git") is not None,
     }
 
-    # Check GitHub CLI authentication
+    # Check GitHub CLI authentication (optional if no PAT)
     try:
         result = subprocess.run(
             [config.GH_CLI_PATH, "auth", "status"],
@@ -167,17 +170,19 @@ async def health_check() -> dict[str, Any]:
             text=True,
             timeout=5,
         )
-        # gh auth status returns 0 if authenticated
+        gh_token = os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN") or ""
         health_status["dependencies"]["github_cli"] = {
             "available": shutil.which(config.GH_CLI_PATH) is not None,
             "authenticated": result.returncode == 0,
-            "token_configured": os.getenv("GH_TOKEN") is not None or os.getenv("GITHUB_TOKEN") is not None,
+            "token_configured": bool(gh_token.strip()),
+            "required": bool(gh_token.strip()),
         }
     except Exception as e:
         health_status["dependencies"]["github_cli"] = {
             "available": False,
             "authenticated": False,
             "error": str(e),
+            "required": False,
         }
 
     # Check Archon server connectivity (if configured)
@@ -222,15 +227,14 @@ async def health_check() -> dict[str, Any]:
                 "error": str(e),
             }
 
-    # Check Supabase database connectivity (if configured)
+    # Check Supabase database connectivity (if configured and storage=supabase)
     supabase_url = os.getenv("SUPABASE_URL")
-    if supabase_url:
+    if supabase_url and config.STATE_STORAGE_TYPE.lower() == "supabase":
         try:
             from .state_manager.repository_config_repository import get_supabase_client
 
             client = get_supabase_client()
-            # Check if archon_configured_repositories table exists
-            response = client.table("archon_configured_repositories").select("id").limit(1).execute()
+            client.table("archon_configured_repositories").select("id").limit(1).execute()
             health_status["dependencies"]["supabase"] = {
                 "available": True,
                 "table_exists": True,
@@ -244,10 +248,13 @@ async def health_check() -> dict[str, Any]:
             }
 
     # Determine overall status
-    critical_deps_ok = (
-        health_status["dependencies"].get("claude_cli", {}).get("available", False)
-        and health_status["dependencies"].get("git", {}).get("available", False)
-    )
+    claude_info = health_status["dependencies"].get("claude_cli", {})
+    gh_info = health_status["dependencies"].get("github_cli", {})
+    claude_ok = claude_info.get("available", False) or not claude_info.get("required", False)
+    gh_ok = gh_info.get("authenticated", False) or not gh_info.get("required", False)
+    git_ok = health_status["dependencies"].get("git", {}).get("available", False)
+
+    critical_deps_ok = git_ok and claude_ok and gh_ok
 
     if not critical_deps_ok:
         health_status["status"] = "degraded"

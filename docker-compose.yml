@@ -170,7 +170,7 @@ services:
     environment:
       - ENABLE_AGENT_WORK_ORDERS=true
       - SERVICE_DISCOVERY_MODE=docker_compose
-      - STATE_STORAGE_TYPE=supabase
+      - STATE_STORAGE_TYPE=${STATE_STORAGE_TYPE:-supabase}
       - ARCHON_SERVER_URL=http://archon-server:${ARCHON_SERVER_PORT:-8181}
       - ARCHON_MCP_URL=http://archon-mcp:${ARCHON_MCP_PORT:-8051}
       - SUPABASE_URL=${SUPABASE_URL}
@@ -189,6 +189,7 @@ services:
     volumes:
       - ./python/src/agent_work_orders:/app/src/agent_work_orders # Hot reload for agent work orders
       - /tmp/agent-work-orders:/tmp/agent-work-orders # Temp files
+      - ./agent-work-orders-state:/app/agent-work-orders-state
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
