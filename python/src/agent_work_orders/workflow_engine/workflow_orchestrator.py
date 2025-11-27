@@ -5,9 +5,7 @@ Main orchestration logic for workflow execution.
 
 import time
 
-from ..agent_executor.agent_cli_executor import AgentCLIExecutor
-from ..command_loader.claude_command_loader import ClaudeCommandLoader
-from ..github_integration.github_client import GitHubClient
+from aal.service import AgentService
 from ..models import (
     AgentWorkOrderStatus,
     SandboxType,
@@ -34,13 +32,13 @@ class WorkflowOrchestrator:
 
     def __init__(
         self,
-        agent_executor: AgentCLIExecutor,
+        agent_service: AgentService,
         sandbox_factory: SandboxFactory,
         github_client: GitHubClient,
         command_loader: ClaudeCommandLoader,
         state_repository: WorkOrderRepository | FileStateRepository,
     ):
-        self.agent_executor = agent_executor
+        self.agent_service = agent_service
         self.sandbox_factory = sandbox_factory
         self.github_client = github_client
         self.command_loader = command_loader

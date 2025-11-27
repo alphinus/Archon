@@ -109,6 +109,8 @@ agent-work-orders = [
     "structlog>=25.4.0",
     "sse-starlette>=2.3.3",
     "supabase==2.15.1",
+    "openai==1.71.0",
+    "PyYAML>=6.0,<7.0",
 ]
 
 # All dependencies for running unit tests locally

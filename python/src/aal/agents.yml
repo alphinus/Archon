@@ -1,0 +1,35 @@
+# AI Empire HQ - Agent Abstraction Layer (AAL) Provider Configuration
+# Version: 1.0
+# This file defines the available AI agent providers, their models, capabilities, and costs.
+# It is loaded by the AAL ProviderRegistry to dynamically configure the AgentService.
+
+providers:
+  anthropic:
+    class: aal.providers.anthropic_provider.ClaudeProvider
+    api_key_env: "ANTHROPIC_API_KEY"
+    models:
+      claude-3-opus-20240229:
+        capabilities: ["text_generation", "code_generation", "context_window_200k", "tool_use", "quality_high"]
+        cost_per_million_tokens: {input: 15.0, output: 75.0} # Example values, adjust to actual pricing
+      claude-3-sonnet-20240229:
+        capabilities: ["text_generation", "code_generation", "context_window_200k", "tool_use", "quality_medium"]
+        cost_per_million_tokens: {input: 3.0, output: 15.0} # Example values
+      claude-3-haiku-20240307:
+        capabilities: ["text_generation", "code_generation", "context_window_200k", "quality_low"]
+        cost_per_million_tokens: {input: 0.25, output: 1.25} # Example values
+
+  openai:
+    class: aal.providers.openai_provider.OpenAIProvider
+    api_key_env: "OPENAI_API_KEY"
+    models:
+      gpt-4-turbo:
+        capabilities: ["text_generation", "code_generation", "context_window_128k", "tool_use", "quality_high"]
+        cost_per_million_tokens: {input: 10.0, output: 30.0} # Example values
+      gpt-3.5-turbo:
+        capabilities: ["text_generation", "code_generation", "context_window_16k", "quality_medium"]
+        cost_per_million_tokens: {input: 0.5, output: 1.5} # Example values
+      gpt-3.5-turbo-instruct:
+        capabilities: ["text_generation", "quality_low"]
+        cost_per_million_tokens: {input: 0.15, output: 0.2} # Example values
+
+# Future: Add local Ollama provider or other custom agents here
