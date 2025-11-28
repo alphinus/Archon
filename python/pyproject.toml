@@ -111,6 +111,8 @@ agent-work-orders = [
     "supabase==2.15.1",
     "openai==1.71.0",
     "PyYAML>=6.0,<7.0",
+    "anthropic>=0.39.0",
+    "prometheus-client>=0.21.0",
 ]
 
 # All dependencies for running unit tests locally
