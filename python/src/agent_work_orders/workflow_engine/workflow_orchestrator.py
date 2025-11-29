@@ -5,7 +5,7 @@ Main orchestration logic for workflow execution.
 
 import time
 
-from aal.service import AgentService
+from src.aal.service import AgentService
 from ..models import (
     AgentWorkOrderStatus,
     SandboxType,

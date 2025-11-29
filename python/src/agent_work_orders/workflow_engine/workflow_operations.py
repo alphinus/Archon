@@ -6,8 +6,8 @@ Each function constructs an AgentRequest and uses the AgentService.
 
 import time
 
-from aal.models import AgentRequest
-from aal.service import AgentService
+from src.aal.models import AgentRequest
+from src.aal.service import AgentService
 from ..command_loader.claude_command_loader import ClaudeCommandLoader
 from ..models import StepExecutionResult, WorkflowStep, WorkflowExecutionError
 from ..utils.structured_logger import get_logger
