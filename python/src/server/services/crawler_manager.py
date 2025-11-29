@@ -4,6 +4,7 @@ Crawler Manager Service
 Handles initialization and management of the Crawl4AI crawler instance.
 This avoids circular imports by providing a service-level access to the crawler.
 """
+from __future__ import annotations  # Enable PEP 563 - postponed evaluation of annotations
 
 import os
 from typing import Optional

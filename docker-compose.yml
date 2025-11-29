@@ -30,6 +30,7 @@ services:
       - AGENT_WORK_ORDERS_PORT=${AGENT_WORK_ORDERS_PORT:-8053}
       - AGENTS_ENABLED=${AGENTS_ENABLED:-false}
       - ARCHON_HOST=${HOST:-localhost}
+      - REDIS_URL=${REDIS_URL:-redis://archon-redis:6379/0}
     networks:
       - app-network
     volumes:
@@ -114,6 +115,25 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s # Give dependencies time to start
+
+  archon-workers:
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    container_name: archon-workers
+    command: python -m src.workers.runner
+    volumes:
+      - ./python:/app
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - REDIS_URL=redis://archon-redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - archon-redis
+    networks:
+      - app-network
+    restart: unless-stopped
 
   # AI Agents Service (ML/Reranking)
   archon-agents:
@@ -235,6 +255,67 @@ services:
       archon-server:
         condition: service_healthy
 
+  # Prometheus - Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: archon-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - app-network
+    depends_on:
+      - archon-server
+
+  # Grafana - Metrics Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: archon-grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
+
+  # Redis - Session Memory
+  archon-redis:
+    image: redis:alpine
+    container_name: archon-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  redis_data:

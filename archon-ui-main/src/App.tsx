@@ -23,12 +23,19 @@ import { serverHealthService } from './services/serverHealthService';
 import { useMigrationStatus } from './hooks/useMigrationStatus';
 
 
+import { MemoryPage } from './features/memory';
+import { PlaygroundPage } from './features/playground';
+import { WorkflowPage } from './features/workflows';
+
 const AppRoutes = () => {
   const { projectsEnabled, styleGuideEnabled, agentWorkOrdersEnabled } = useSettings();
 
   return (
     <Routes>
       <Route path="/" element={<KnowledgeBasePage />} />
+      <Route path="/memory" element={<MemoryPage />} />
+      <Route path="/playground" element={<PlaygroundPage />} />
+      <Route path="/workflows" element={<WorkflowPage />} />
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/mcp" element={<MCPPage />} />

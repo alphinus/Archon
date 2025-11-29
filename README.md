@@ -26,6 +26,41 @@
 
 Archon is the **command center** for AI coding assistants. For you, it's a sleek interface to manage knowledge, context, and tasks for your projects. For the AI coding assistant(s), it's a **Model Context Protocol (MCP) server** to collaborate on and leverage the same knowledge, context, and tasks. Connect Claude Code, Kiro, Cursor, Windsurf, etc. to give your AI agents access to:
 
+-📖 **[Full Documentation](docs/MEMORY_SYSTEM.md)** | Architecture, API, Examples
+
+## ⚡ Real-Time Events
+
+Archon includes a **Real-Time Sync Engine** that keeps all agents and services in sync:
+
+- **Event Bus**: Transactional messaging via Postgres LISTEN/NOTIFY
+- **Background Workers**: Auto-maintenance and memory consolidation
+- **Live Updates**: Agents react instantly to new information
+
+📖 **[Event System Guide](docs/EVENTS.md)**
+
+## 🛡️ Production Readiness
+
+Archon includes a comprehensive validation suite that proves the system's resilience:
+
+```bash
+python validate_production.py
+```
+
+**Tests:**
+- ✅ Memory System (Session, Working, Long-Term)
+- ✅ Resilience Layer (Circuit Breakers, Retry Logic)
+- ✅ Event System & Dead Letter Queue
+- ✅ Background Workers & Supervision
+- ✅ Health Checks & Monitoring
+
+**Self-Healing Features:**
+- System survives Redis/Postgres failures
+- Workers auto-restart on crash
+- Events never lost (DLQ + retry)
+- Full observability via health endpoints
+
+---
+
 - **Your documentation** (crawled websites, uploaded PDFs/docs)
 - **Smart search capabilities** with advanced RAG strategies
 - **Task management** integrated with your knowledge base

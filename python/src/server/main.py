@@ -24,6 +24,7 @@ from .api_routes.bug_report_api import router as bug_report_router
 from .api_routes.internal_api import router as internal_router
 from .api_routes.knowledge_api import router as knowledge_router
 from .api_routes.mcp_api import router as mcp_router
+from .api_routes.metrics_api import router as metrics_router
 from .api_routes.migration_api import router as migration_router
 from .api_routes.ollama_api import router as ollama_router
 from .api_routes.pages_api import router as pages_router
@@ -32,8 +33,10 @@ from .api_routes.projects_api import router as projects_router
 from .api_routes.providers_api import router as providers_router
 from .api_routes.version_api import router as version_router
 
-# Import modular API routers
 from .api_routes.settings_api import router as settings_router
+from src.api.routers.memory import router as memory_router
+from src.api.routers.health import router as health_router
+from src.api.routers.metrics import router as archon_metrics_router
 
 # Import Logfire configuration
 from .config.logfire_config import api_logger, setup_logfire
@@ -196,6 +199,10 @@ app.include_router(bug_report_router)
 app.include_router(providers_router)
 app.include_router(version_router)
 app.include_router(migration_router)
+app.include_router(metrics_router)  # Prometheus metrics endpoint
+app.include_router(memory_router)  # Memory System API
+app.include_router(health_router)  # Deep Health Checks
+app.include_router(archon_metrics_router)  # Archon-specific Prometheus metrics
 
 
 # Root endpoint

@@ -55,6 +55,25 @@ class AgentRequest(BaseModel):
         description="The maximum number of tokens to generate in the response."
     )
 
+    # --- Memory Integration ---
+    user_id: Optional[str] = Field(
+        default=None,
+        description="User ID for retrieving user-specific memories."
+    )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="Session ID for retrieving session-specific context."
+    )
+    enable_memory: bool = Field(
+        default=True,
+        description="Toggle automatic memory context injection."
+    )
+    memory_max_tokens: int = Field(
+        default=4000,
+        gt=0,
+        description="Maximum token budget for assembled memory context."
+    )
+
 
 class AgentResponse(BaseModel):
     """

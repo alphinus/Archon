@@ -20,28 +20,46 @@ export const Select: React.FC<SelectProps> = ({
     pink: 'focus-within:border-pink-500 focus-within:shadow-[0_0_15px_rgba(236,72,153,0.5)]',
     blue: 'focus-within:border-blue-500 focus-within:shadow-[0_0_15px_rgba(59,130,246,0.5)]'
   };
+
   return <div className="w-full">
-      {label && <label className="block text-gray-600 dark:text-zinc-400 text-sm mb-1.5">
-          {label}
-        </label>}
-      <div className={`
+    {label && <label className="block text-gray-600 dark:text-zinc-400 text-sm mb-1.5">
+      {label}
+    </label>}
+    <div className={`
         relative backdrop-blur-md bg-gradient-to-b dark:from-white/10 dark:to-black/30 from-white/80 to-white/60
         border dark:border-zinc-800/80 border-gray-200 rounded-md
         transition-all duration-200 ${accentColorMap[accentColor]}
       `}>
-        <select className={`
+      <select className={`
             w-full bg-transparent text-gray-800 dark:text-white appearance-none px-3 py-2
             focus:outline-none ${className}
           `} {...props}>
-          {options.map(option => <option key={option.value} value={option.value} className="bg-white dark:bg-zinc-900">
-              {option.label}
-            </option>)}
-        </select>
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-zinc-500">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
+        {options.map(option => <option key={option.value} value={option.value} className="bg-white dark:bg-zinc-900">
+          {option.label}
+        </option>)}
+      </select>
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-zinc-500">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </div>
-    </div>;
+    </div>
+  </div>;
 };
+
+// Radix-style Select subcomponents for compatibility
+export function SelectTrigger({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <button type="button" className={`flex items-center justify-between w-full px-3 py-2 border rounded text-sm ${className}`}>{children}</button>;
+}
+
+export function SelectValue({ placeholder }: { placeholder?: string }) {
+  return <span className="text-gray-400">{placeholder || "Select..."}</span>;
+}
+
+export function SelectContent({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={`absolute z-50 min-w-full bg-gray-900 border border-gray-700 rounded-md mt-1 py-1 ${className}`}>{children}</div>;
+}
+
+export function SelectItem({ value, children, className }: { value: string; children: React.ReactNode; className?: string }) {
+  return <div className={`px-3 py-2 text-sm cursor-pointer hover:bg-gray-800 text-gray-200 ${className}`}>{children}</div>;
+}

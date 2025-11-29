@@ -100,6 +100,20 @@ aal_routing_fallbacks = Counter(
     ['from_provider', 'to_provider']
 )
 
+# Agent Performance Metrics
+aal_agent_requests = Counter(
+    'aal_agent_requests_total',
+    'Requests by agent/feature',
+    ['agent_name', 'provider', 'status']
+)
+
+aal_agent_token_efficiency = Histogram(
+    'aal_agent_token_efficiency_ratio',
+    'Output/Input token ratio by agent',
+    ['agent_name'],
+    buckets=(0.1, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0)
+)
+
 
 class MetricsCollector:
     """
@@ -220,3 +234,20 @@ class MetricsCollector:
             from_provider=from_provider,
             to_provider=to_provider
         ).inc()
+
+    @staticmethod
+    def record_agent_request(agent_name: str, provider: str, success: bool):
+        """Record an agent-specific request"""
+        status = "success" if success else "error"
+        aal_agent_requests.labels(
+            agent_name=agent_name,
+            provider=provider,
+            status=status
+        ).inc()
+
+    @staticmethod
+    def record_agent_token_efficiency(agent_name: str, input_tokens: int, output_tokens: int):
+        """Record token efficiency for an agent"""
+        if input_tokens > 0:
+            ratio = output_tokens / input_tokens
+            aal_agent_token_efficiency.labels(agent_name=agent_name).observe(ratio)

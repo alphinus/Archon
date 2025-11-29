@@ -67,6 +67,24 @@ export function Navigation({ className }: NavigationProps) {
       enabled: styleGuideEnabled,
     },
     {
+      path: "/memory",
+      icon: <Bot className="h-5 w-5" />, // Using Bot icon temporarily
+      label: "Memory Inspector",
+      enabled: true,
+    },
+    {
+      path: "/playground",
+      icon: <Bot className="h-5 w-5" />, // Using Bot icon temporarily
+      label: "Agent Playground",
+      enabled: true,
+    },
+    {
+      path: "/workflows",
+      icon: <Bot className="h-5 w-5" />, // Using Bot icon temporarily
+      label: "Workflow Builder",
+      enabled: true,
+    },
+    {
       path: "/settings",
       icon: <Settings className="h-5 w-5" />,
       label: "Settings",
@@ -153,15 +171,15 @@ export function Navigation({ className }: NavigationProps) {
                     "flex items-center justify-center",
                     isActive
                       ? [
-                          "bg-gradient-to-b from-white/20 to-white/5 dark:from-white/10 dark:to-black/20",
-                          "text-blue-600 dark:text-blue-400",
-                          "shadow-[0_5px_15px_-5px_rgba(59,130,246,0.3)] dark:shadow-[0_5px_15px_-5px_rgba(59,130,246,0.5)]",
-                        ]
+                        "bg-gradient-to-b from-white/20 to-white/5 dark:from-white/10 dark:to-black/20",
+                        "text-blue-600 dark:text-blue-400",
+                        "shadow-[0_5px_15px_-5px_rgba(59,130,246,0.3)] dark:shadow-[0_5px_15px_-5px_rgba(59,130,246,0.5)]",
+                      ]
                       : [
-                          "text-gray-500 dark:text-zinc-500",
-                          "hover:text-blue-600 dark:hover:text-blue-400",
-                          "hover:bg-white/10 dark:hover:bg-white/5",
-                        ],
+                        "text-gray-500 dark:text-zinc-500",
+                        "hover:text-blue-600 dark:hover:text-blue-400",
+                        "hover:bg-white/10 dark:hover:bg-white/5",
+                      ],
                   )}
                 >
                   {item.icon}

@@ -5,6 +5,8 @@ from typing import Dict, List, Optional
 
 from structlog import get_logger
 
+from src.memory import ContextAssembler
+
 from .circuit_breaker import get_circuit_breaker_registry
 from .interfaces import IAgentProvider
 from .metrics import MetricsCollector
@@ -57,6 +59,68 @@ class AgentService:
             The standardized agent response.
         """
         self._logger.info("agent_request_received", request=request.model_dump())
+        
+        # --- MEMORY INTEGRATION ---
+        # Automatically inject context from all memory layers if enabled
+        if request.enable_memory and request.user_id:
+            try:
+                context_assembler = ContextAssembler()
+                assembled_context = await context_assembler.assemble_context(
+                    user_id=request.user_id,
+                    session_id=request.session_id,
+                    max_tokens=request.memory_max_tokens
+                )
+                
+                # Format assembled context as system message
+                context_parts = []
+                
+                if assembled_context.session and assembled_context.session.messages:
+                    msg_count = len(assembled_context.session.messages)
+                    context_parts.append(f"Session Context ({msg_count} messages)")
+                    
+                if assembled_context.recent_memories:
+                    mem_count = len(assembled_context.recent_memories)
+                    context_parts.append(f"Recent Activity ({mem_count} items)")
+                    for mem in assembled_context.recent_memories[:3]:  # Show top 3
+                        if mem.memory_type == "conversation":
+                            summary = mem.content.get("summary", "N/A")
+                            context_parts.append(f"  - {summary}")
+                            
+                if assembled_context.facts:
+                    fact_count = len(assembled_context.facts)
+                    context_parts.append(f"Knowledge Base ({fact_count} facts)")
+                    for fact in assembled_context.facts[:3]:  # Show top 3
+                        if fact.memory_type == "preference":
+                            pref = fact.content.get("preference", "N/A")
+                            context_parts.append(f"  - Preference: {pref}")
+                        elif fact.memory_type == "fact":
+                            f = fact.content.get("fact", "N/A")
+                            context_parts.append(f"  - Fact: {f}")
+                            
+                if context_parts:
+                    context_message = {
+                        "role": "system",
+                        "content": "\n".join(context_parts) + f"\n\n(Using {assembled_context.total_tokens} tokens of memory context)"
+                    }
+                    # Prepend to conversation history
+                    request.conversation_history.insert(0, context_message)
+                    self._logger.info(
+                        "memory_context_injected",
+                        user_id=request.user_id,
+                        session_id=request.session_id,
+                        total_tokens=assembled_context.total_tokens,
+                        session_messages=len(assembled_context.session.messages) if assembled_context.session else 0,
+                        recent_memories=len(assembled_context.recent_memories),
+                        facts=len(assembled_context.facts)
+                    )
+            except Exception as e:
+                self._logger.warning(
+                    "memory_injection_failed",
+                    error=str(e),
+                    user_id=request.user_id
+                )
+        # --- END MEMORY INTEGRATION ---
+        
         candidate_providers: List[IAgentProvider] = []
 
         # 1. Filter providers based on preferred_provider (if specified)
