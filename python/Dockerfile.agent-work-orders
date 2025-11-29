@@ -42,6 +42,7 @@ COPY --from=builder /venv /venv
 # Copy agent work orders source code only (not entire server)
 COPY src/agent_work_orders/ src/agent_work_orders/
 COPY src/aal/ src/aal/
+COPY src/memory/ src/memory/
 COPY src/__init__.py src/
 
 # Copy Claude command files for agent work orders
@@ -59,9 +60,9 @@ RUN mkdir -p /repos /tmp/agent-work-orders && \
 ARG SKIP_CLAUDE_INSTALL=true
 USER agentuser
 RUN if [ "$SKIP_CLAUDE_INSTALL" != "true" ]; then \
-      curl -fsSL https://claude.ai/install.sh | bash; \
+    curl -fsSL https://claude.ai/install.sh | bash; \
     else \
-      echo "Skipping Claude CLI install (SKIP_CLAUDE_INSTALL=true)"; \
+    echo "Skipping Claude CLI install (SKIP_CLAUDE_INSTALL=true)"; \
     fi
 
 # Configure git to use gh CLI for GitHub authentication
