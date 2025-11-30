@@ -5,7 +5,7 @@
 
 providers:
   anthropic:
-    class: aal.providers.anthropic_provider.ClaudeProvider
+    class: src.aal.providers.anthropic_provider.ClaudeProvider
     api_key_env: "ANTHROPIC_API_KEY"
     models:
       claude-3-opus-20240229:
@@ -19,7 +19,7 @@ providers:
         cost_per_million_tokens: {input: 0.25, output: 1.25} # Example values
 
   openai:
-    class: aal.providers.openai_provider.OpenAIProvider
+    class: src.aal.providers.openai_provider.OpenAIProvider
     api_key_env: "OPENAI_API_KEY"
     models:
       gpt-4-turbo:
