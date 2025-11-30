@@ -72,6 +72,7 @@ server = [
     "tldextract>=5.0.0",
     # Logging
     "logfire>=0.30.0",
+    "structlog>=23.1.0",  # Required by memory router and other components
     # Monitoring
     "prometheus-client>=0.20.0",
     # Testing (needed for UI-triggered tests)
