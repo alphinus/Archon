@@ -124,6 +124,7 @@ agent-work-orders = [
     "anthropic>=0.39.0",
     "prometheus-client>=0.21.0",
     "redis>=5.0.0",  # Required by memory module
+    "asyncpg>=0.29.0",  # Required by events module
 ]
 
 # All dependencies for running unit tests locally
