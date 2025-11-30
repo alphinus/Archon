@@ -22,6 +22,8 @@ from ..utils.structured_logger import (
     clear_work_order_context,
     get_logger,
 )
+from ..github_integration.github_client import GitHubClient
+from ..command_loader.claude_command_loader import ClaudeCommandLoader
 from . import workflow_operations
 
 logger = get_logger(__name__)
