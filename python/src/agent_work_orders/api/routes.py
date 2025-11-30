@@ -133,7 +133,10 @@ state_repository = create_repository()
 repository_config_repo = RepositoryConfigRepository()
 # Import AgentService from AAL
 from src.aal.service import AgentService
-agent_service = AgentService()
+from src.aal.registry import get_provider_registry
+# Get providers from registry and initialize AgentService
+provider_registry = get_provider_registry()
+agent_service = AgentService(providers=provider_registry.get_all_providers())
 sandbox_factory = SandboxFactory()
 github_client = GitHubClient()
 command_loader = ClaudeCommandLoader()
