@@ -181,6 +181,7 @@ services:
       - ./python/src/agent_work_orders:/app/src/agent_work_orders # Hot reload for agent work orders
       - ./python/src/aal:/app/src/aal # AAL module required by agent work orders
       - ./python/src/memory:/app/src/memory # Memory module required by AAL
+      - ./python/src/events:/app/src/events # Events module required by memory
       - /tmp/agent-work-orders:/tmp/agent-work-orders # Temp files
       - ./agent-work-orders-state:/app/agent-work-orders-state
     extra_hosts:

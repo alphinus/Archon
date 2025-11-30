@@ -43,6 +43,7 @@ COPY --from=builder /venv /venv
 COPY src/agent_work_orders/ src/agent_work_orders/
 COPY src/aal/ src/aal/
 COPY src/memory/ src/memory/
+COPY src/events/ src/events/
 COPY src/__init__.py src/
 
 # Copy Claude command files for agent work orders
