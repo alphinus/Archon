@@ -126,6 +126,7 @@ agent-work-orders = [
     "redis>=5.0.0",  # Required by memory module
     "asyncpg>=0.29.0",  # Required by events module
     "tenacity>=8.2.3",  # Required by resilient_memory module
+    "pybreaker>=1.0.2",  # Required by resilient_memory module
 ]
 
 # All dependencies for running unit tests locally
