@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Literal, Optional
 
 import openai
 
-from aal.interfaces import IAgentProvider
-from aal.models import AgentRequest, AgentResponse
+from ..interfaces import IAgentProvider
+from ..models import AgentRequest, AgentResponse
 
 
 class OpenAIProvider(IAgentProvider):

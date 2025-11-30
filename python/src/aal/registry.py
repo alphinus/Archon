@@ -6,8 +6,8 @@ import os
 import yaml
 from typing import Dict, List, Type
 
-from aal.interfaces import IAgentProvider
-from aal.models import AgentRequest, AgentResponse  # Import for type hints
+from .interfaces import IAgentProvider
+from .models import AgentRequest, AgentResponse  # Import for type hints
 
 # Configuration file for providers
 PROVIDER_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "agents.yml")
