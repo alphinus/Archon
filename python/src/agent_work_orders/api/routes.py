@@ -131,13 +131,15 @@ def _create_task_done_callback(agent_work_order_id: str) -> Callable[[asyncio.Ta
 # Initialize dependencies (singletons for MVP)
 state_repository = create_repository()
 repository_config_repo = RepositoryConfigRepository()
-agent_executor = AgentCLIExecutor()
+# Import AgentService from AAL
+from src.aal.service import AgentService
+agent_service = AgentService()
 sandbox_factory = SandboxFactory()
 github_client = GitHubClient()
 command_loader = ClaudeCommandLoader()
 log_buffer = WorkOrderLogBuffer()
 orchestrator = WorkflowOrchestrator(
-    agent_executor=agent_executor,
+    agent_service=agent_service,
     sandbox_factory=sandbox_factory,
     github_client=github_client,
     command_loader=command_loader,
