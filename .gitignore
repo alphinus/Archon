@@ -30,3 +30,7 @@ UAT/
 # Local release notes testing
 release-notes-*.md
 agent-work-orders-state/
+
+# Git Hygiene
+**/.git
+!/.git

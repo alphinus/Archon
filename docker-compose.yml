@@ -31,6 +31,7 @@ services:
       - AGENTS_ENABLED=${AGENTS_ENABLED:-false}
       - ARCHON_HOST=${HOST:-localhost}
       - REDIS_URL=${REDIS_URL:-redis://archon-redis:6379/0}
+      - PYTHONPATH=/app
     networks:
       - app-network
     volumes:
