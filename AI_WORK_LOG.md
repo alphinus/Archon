@@ -10,5 +10,6 @@ This file serves as a chronological log of all AI sessions, ensuring context pre
 - [NEW] `AI_WORK_LOG.md` (This file)
 - [NEW] `AI_TASKS.md` (Persistent task tracking)
 - [NEW] `.context/` directory (System state tracking)
+- [NEW] `AI_INSTRUCTIONS.md` (The "Init" file for AIs)
 
 **Status:** Completed - Success. Server fixed via `PYTHONPATH` adjustment. AI standards established.
