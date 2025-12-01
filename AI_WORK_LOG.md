@@ -13,3 +13,9 @@ This file serves as a chronological log of all AI sessions, ensuring context pre
 - [NEW] `AI_INSTRUCTIONS.md` (The "Init" file for AIs)
 
 **Status:** Completed - Success. Server fixed via `PYTHONPATH` adjustment. AI standards established.
+
+## [2025-12-01 12:10] Session by Antigravity (Gemini)
+**Goal:** Investigate crash (ID: 24245cd...) and UI unavailability; create detailed recovery plan.
+**Changes:**
+- [PENDING] Investigation
+**Status:** In Progress
