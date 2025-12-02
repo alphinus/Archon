@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { useLongTermMemory } from '../hooks/useMemoryApi';
 
 // TODO: Get from auth context
-const MOCK_USER_ID = 'user_123';
+const MOCK_USER_ID = '550e8400-e29b-41d4-a716-446655440000';  // Valid test UUID
 
 export function LongTermMemoryPanel() {
     const { data, isLoading, error } = useLongTermMemory(MOCK_USER_ID);

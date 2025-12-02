@@ -21,6 +21,10 @@ class WorkingMemory:
         self.client: Client = create_client(url, key)
         self.table_name = "working_memory"
         
+        # Get circuit breaker for Supabase
+        from src.server.middleware.circuit_breaker import get_circuit_breaker
+        self.circuit_breaker = get_circuit_breaker("Supabase", failure_threshold=5, timeout_seconds=60)
+        
     async def create(
         self,
         user_id: str,
@@ -43,8 +47,15 @@ class WorkingMemory:
             "relevance_score": 1.0
         }
         
-        result = self.client.table(self.table_name).insert(data).execute()
-        entry = WorkingMemoryEntry(**result.data[0])
+        try:
+            result = await self.circuit_breaker.call_async(
+                lambda: self.client.table(self.table_name).insert(data).execute()
+            )
+            entry = WorkingMemoryEntry(**result.data[0])
+        except Exception as e:
+            from src.server.exceptions import DatabaseError
+            logger.error("Failed to create working memory", error=str(e), user_id=user_id)
+            raise DatabaseError(f"Failed to create working memory: {str(e)}")
         
         # Publish event
         try:

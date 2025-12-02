@@ -23,10 +23,32 @@ class SessionMemory:
         self.ttl_seconds = 3600  # 1 hour default TTL
         
     async def connect(self):
-        """Establish connection to Redis."""
-        if not self.redis:
-            self.redis = redis.from_url(self.redis_url, decode_responses=True)
+        """Establish Redis connection with retry logic."""
+        if self.redis is None:
+            from src.server.middleware.retry import retry_async
+            from src.server.exceptions import ExternalServiceError
             
+            async def _connect():
+                try:
+                    self.redis = await redis.from_url(
+                        self.redis_url,
+                        encoding="utf-8",
+                        decode_responses=True
+                    )
+                    await self.redis.ping()  # Test connection
+                except Exception as e:
+                    raise ExternalServiceError(
+                        service="Redis",
+                        message=f"Connection failed: {str(e)}"
+                    )
+            
+            # Retry connection with exponential backoff
+            await retry_async(
+                _connect,
+                max_attempts=3,
+                initial_delay=0.5,
+                exceptions=(ExternalServiceError,)
+            )
     async def close(self):
         """Close Redis connection."""
         if self.redis:

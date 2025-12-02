@@ -34,7 +34,7 @@ export const Select: React.FC<SelectProps> = ({
             w-full bg-transparent text-gray-800 dark:text-white appearance-none px-3 py-2
             focus:outline-none ${className}
           `} {...props}>
-        {options.map(option => <option key={option.value} value={option.value} className="bg-white dark:bg-zinc-900">
+        {(options || []).map(option => <option key={option.value} value={option.value} className="bg-white dark:bg-zinc-900">
           {option.label}
         </option>)}
       </select>

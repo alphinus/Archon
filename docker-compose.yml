@@ -176,6 +176,7 @@ services:
       - CLAUDE_CLI_PATH=${CLAUDE_CLI_PATH:-claude}
       - GH_CLI_PATH=${GH_CLI_PATH:-gh}
       - GH_TOKEN=${GITHUB_PAT_TOKEN}
+      - PYTHONPATH=/app
     networks:
       - app-network
     volumes:

@@ -26,6 +26,11 @@ Before writing a single line of code or answering a complex question, you **MUST
     *   *Why:* Understand *why* things are built this way.
     *   *Action:* Respect architectural decisions (e.g., "No nested .git").
 
+5.  **📘 `ARCHON_SYSTEM_OVERVIEW.md`** (NEW - For external AI consultants)
+    *   *Why:* Comprehensive architecture, components, and current status overview.
+    *   *Action:* Read if you're new to Archon or providing consultation.
+    *   **Important:** This file MUST be updated with major milestones and versioned!
+
 ---
 
 ## 📝 2. Documentation Rules (During & After Work)
@@ -51,6 +56,19 @@ You are responsible for maintaining the project's memory.
 ### C. Update `.context/current_state.md`
 *   **When:** You fix a bug or break something.
 *   **Action:** Update the "Status" and "Active Issues" section.
+
+### D. Update `ARCHON_SYSTEM_OVERVIEW.md` ⭐ NEW REQUIREMENT
+*   **When:** Major milestones, significant features completed, architecture changes
+*   **Action:** 
+    1. Update the version number (e.g., 1.0.0 → 1.1.0)
+    2. Update "Last Updated" date
+    3. Add entry to "Version History" section
+    4. Update relevant metrics or status sections
+*   **Examples of major milestones:**
+    - Memory Inspector fully operational
+    - New service deployment
+    - SaaS MVP completion
+    - Breaking API changes
 
 ---
 

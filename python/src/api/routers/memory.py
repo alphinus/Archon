@@ -1,14 +1,16 @@
+```
 """
 Memory API Router.
 Exposes read-only endpoints for Session, Working, and Long-Term Memory.
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional
+from fastapi import APIRouter, Query, HTTPException, status
+from pydantic import BaseModel, Field, validator
+from typing import Optional, List, Dict, Any
 from structlog import get_logger
-from pydantic import BaseModel
 from datetime import datetime
 
+from src.server.exceptions import DatabaseError, ValidationError, NotFoundError
 from src.memory import SessionMemory, WorkingMemory, LongTermMemory
 from src.memory.models import SessionMessage, WorkingMemoryEntry, LongTermMemoryEntry
 
@@ -74,19 +76,19 @@ _session_memory_instance: Optional[SessionMemory] = None
 _working_memory_instance: Optional[WorkingMemory] = None
 _longterm_memory_instance: Optional[LongTermMemory] = None
 
-def get_session_memory() -> SessionMemory:
+def _get_session_memory_instance() -> SessionMemory:
     global _session_memory_instance
     if _session_memory_instance is None:
         _session_memory_instance = _get_session_memory()
     return _session_memory_instance
 
-def get_working_memory() -> WorkingMemory:
+def _get_working_memory_instance() -> WorkingMemory:
     global _working_memory_instance
     if _working_memory_instance is None:
         _working_memory_instance = _get_working_memory()
     return _working_memory_instance
 
-def get_longterm_memory() -> LongTermMemory:
+def _get_longterm_memory_instance() -> LongTermMemory:
     global _longterm_memory_instance
     if _longterm_memory_instance is None:
         _longterm_memory_instance = _get_longterm_memory()
@@ -106,7 +108,7 @@ async def get_session_memory(
     """
     try:
         # Get session with proper configuration
-        session_memory = get_session_memory()
+        session_memory = _get_session_memory_instance()
         
         # Get session
         session = await session_memory.get_session(session_id)
@@ -147,7 +149,7 @@ async def get_working_memory(
     """
     try:
         # Get working memory with proper configuration
-        working_memory = get_working_memory()
+        working_memory = _get_working_memory_instance()
         
         # Get entries with filtering
         if memory_type:
@@ -184,14 +186,14 @@ async def get_longterm_memory(
     Returns consolidated facts ordered by importance.
     """
     try:
-        # Get working memory with proper configuration
-        working_memory = get_working_memory()
+        # Get longterm memory with proper configuration
+        longterm_memory = _get_longterm_memory_instance()
         
         # Get entries with filtering
         if memory_type:
             entries = await longterm_memory.get_by_type(user_id, memory_type, limit=page_size * page)
         else:
-            entries = await longterm_memory.get_important(user_id, min_score=min_importance, limit=page_size * page)
+            entries = await longterm_memory.get_important(user_id, min_importance=min_importance, limit=page_size * page)
         
         # Apply pagination
         offset = (page - 1) * page_size
@@ -217,12 +219,12 @@ async def get_memory_stats(user_id: str):
     """
     try:
         # Get memory instances with proper configuration
-        working_memory = get_working_memory()
-        longterm_memory = get_longterm_memory()
+        working_memory = _get_working_memory_instance()
+        longterm_memory = _get_longterm_memory_instance()
         
         # Count entries in each layer
         working_entries = await working_memory.get_recent(user_id, limit=1000)
-        longterm_entries = await longterm_memory.get_important(user_id, min_score=0.0, limit=1000)
+        longterm_entries = await longterm_memory.get_important(user_id, min_importance=0.0, limit=1000)
         
         # Calculate average importance if available
         avg_importance = None

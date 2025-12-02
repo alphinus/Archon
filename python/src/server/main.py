@@ -165,6 +165,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register global error handlers
+from src.server.middleware.error_handler import register_exception_handlers
+register_exception_handlers(app)
+
 
 # Add middleware to skip logging for health checks
 @app.middleware("http")

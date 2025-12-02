@@ -55,7 +55,7 @@ export function MemoryInspector({ userId, sessionId }: MemoryInspectorProps) {
                         </TabsList>
 
                         <TabsContent value="session" className="mt-6">
-                            <SessionMemoryPanel />
+                            <SessionMemoryPanel sessionId={sessionId} />
                         </TabsContent>
 
                         <TabsContent value="working" className="mt-6">

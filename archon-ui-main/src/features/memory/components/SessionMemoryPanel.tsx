@@ -11,10 +11,15 @@ import { useSessionMemory } from '../hooks/useMemoryApi';
 
 
 // TODO: Get from auth context
-const MOCK_SESSION_ID = 'session_123';
+const MOCK_SESSION_ID = 'test_session_001';  // Matches seeded data
 
-export function SessionMemoryPanel() {
-    const { data, isLoading, error } = useSessionMemory(MOCK_SESSION_ID);
+interface SessionMemoryPanelProps {
+    sessionId?: string;
+}
+
+export function SessionMemoryPanel({ sessionId }: SessionMemoryPanelProps) {
+    const effectiveSessionId = sessionId || MOCK_SESSION_ID;
+    const { data, isLoading, error } = useSessionMemory(effectiveSessionId);
 
     if (isLoading) {
         return (
