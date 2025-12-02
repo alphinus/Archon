@@ -5,74 +5,55 @@ Creates sample data for session, working, and long-term memory layers.
 """
 import asyncio
 import os
-import uuid
 from datetime import datetime, timedelta
-from typing import List
+from uuid import uuid4
 
-# Test UUIDs for consistency
-TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"  # Valid UUID v4
+# Make sure we can import from src
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from src.memory import SessionMemory, WorkingMemory, LongTermMemory
+from src.memory.models import Message
+
+# Test constants
+TEST_USER_ID = "550e8400-e29b-41d4-a716-446655440000"
 TEST_SESSION_ID = "test_session_001"
 
+
 async def seed_session_memory():
-    """Seed Redis with sample session messages."""
-    from src.memory import SessionMemory
-    from src.memory.models import Message
+    """Seed Session Memory with conversation data."""
+    print("🔄 Seeding Session Memory...")
     
-    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    session_memory = SessionMemory(redis_url=redis_url)
+    memory = SessionMemory()
+    await memory.connect()
     
-    print(f"Creating session: {TEST_SESSION_ID} for user: {TEST_USER_ID}")
-    
-    # First create the session
-    await session_memory.create_session(
-        session_id=TEST_SESSION_ID,
-        user_id=TEST_USER_ID
+    # Create session
+    session = await memory.create_session(
+        user_id=TEST_USER_ID,
+        session_id=TEST_SESSION_ID
     )
+    print(f"  ✅ Created session: {session.session_id}")
     
-    # Create sample conversation messages
+    # Add conversation messages
     messages = [
-        Message(role="user", content="Hello! I'm testing the Memory Inspector."),
-        Message(role="assistant", content="Hi! I'm here to help you test the memory system. How can I assist you?"),
-        Message(role="user", content="Can you remember what I told you about my project?"),
-        Message(role="assistant", content="I'd be happy to help! Could you tell me more about your project?"),
-        Message(role="user", content="I'm building Archon, a knowledge management system for AI."),
-        Message(role="assistant", content="That sounds fascinating! Archon as a knowledge management system will help AIs retain context across sessions."),
+        Message(role="user", content="Hello! Can you help me with my project?"),
+        Message(role="assistant", content="Of course! I'd be happy to help. What project are you working on?"),
+        Message(role="user", content="I'm building a web application with FastAPI and React."),
+        Message(role="assistant", content="Great choice! FastAPI is excellent for APIs and React for frontends. What specific help do you need?"),
+        Message(role="user", content="I need to implement authentication and user management."),
+        Message(role="assistant", content="I can help with that. Let's start with JWT-based authentication..."),
+        Message(role="user", content="Should I use OAuth2 or custom authentication?"),
+        Message(role="assistant", content="For most cases, OAuth2 with JWT tokens is recommended. Here's why..."),
     ]
     
     for msg in messages:
-        await session_memory.add_message(
-            session_id=TEST_SESSION_ID,
-            message=msg
-        )
+        await memory.add_message(TEST_SESSION_ID, msg)
     
-    print(f"✅ Added {len(messages)} messages to session memory")
+    print(f"  ✅ Added {len(messages)} messages to session")
+    await memory.close()
+
 
 async def seed_working_memory():
-    """Seed Supabase with sample working memory entries."""
-    from src.memory import WorkingMemory
-    from src.server.config.config import get_config
-    
-    config = get_config()
-    working_memory = WorkingMemory(
-        supabase_url=config.supabase_url,
-        supabase_key=config.supabase_service_key
-    )
-    
-    # Sample working memory entries
-    entries = [
-        {
-            "content": "User is testing the Memory Inspector UI",
-            "memory_type": "context",
-            "importance_score": 0.8,
-        },
-        {
-            "content": "User's name is interested in AI systems",
-            "memory_type": "user_info",
-            "importance_score": 0.7,
-        },
-        {
-            "content": "Current project: Building Archon knowledge system",
-            "memory_type": "task",
             "importance_score": 0.9,
         },
         {

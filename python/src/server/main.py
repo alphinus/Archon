@@ -169,6 +169,10 @@ app.add_middleware(
 from src.server.middleware.error_handler import register_exception_handlers
 register_exception_handlers(app)
 
+# Add Request ID middleware for distributed tracing
+from src.server.middleware.request_id import RequestIDMiddleware
+app.add_middleware(RequestIDMiddleware)
+
 
 # Add middleware to skip logging for health checks
 @app.middleware("http")
@@ -216,13 +220,12 @@ async def root():
     return {
         "name": "Archon Knowledge Engine API",
         "version": "1.0.0",
-        "description": "Backend API for knowledge management and project automation",
+        "description": "Backend API for the Archon knowledge management and project automation platform",
         "status": "healthy",
         "modules": ["settings", "mcp", "mcp-clients", "knowledge", "projects"],
     }
 
 
-# Health check endpoint
 @app.get("/health")
 async def health_check(response: Response):
     """Health check endpoint that indicates true readiness including credential loading."""

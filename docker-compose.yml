@@ -225,58 +225,70 @@ services:
       archon-server:
         condition: service_healthy
 
+  # Redis Service for Session Memory
+  archon-redis:
+    image: redis:7-alpine
+    container_name: archon-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Prometheus - Metrics Collection
   prometheus:
     image: prom/prometheus:latest
     container_name: archon-prometheus
     ports:
       - "9090:9090"
+    networks:
+      - app-network
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-lifecycle'
-    networks:
-      - app-network
-    depends_on:
-      - archon-server
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Grafana - Metrics Visualization
+  # Grafana - Metrics Visualization & Dashboards
   grafana:
     image: grafana/grafana:latest
     container_name: archon-grafana
     ports:
-      - "3001:3000"
+      - "3001:3000" # Port 3000 is used by frontend, so use 3001
+    networks:
+      - app-network
     volumes:
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_INSTALL_PLUGINS=
-    networks:
-      - app-network
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
-      - prometheus
-
-  # Redis - Session Memory
-  archon-redis:
-    image: redis:alpine
-    container_name: archon-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
+      prometheus:
+        condition: service_healthy
+    restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -286,6 +298,8 @@ networks:
     driver: bridge
 
 volumes:
-  prometheus_data:
-  grafana_data:
-  redis_data:
+  postgres_data:
+  python-pip-cache:
+  redis-data:
+  prometheus-data:
+  grafana-data:
