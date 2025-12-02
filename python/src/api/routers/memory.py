@@ -1,4 +1,3 @@
-```
 """
 Memory API Router.
 Exposes read-only endpoints for Session, Working, and Long-Term Memory.
