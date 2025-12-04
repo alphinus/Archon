@@ -1,0 +1,23 @@
+graph TB
+    Client[Client Applications]
+    Server[Archon Server]
+    Agents[Agent System]
+    DB[(PostgreSQL)]
+    Cache[(Redis)]
+    
+    Client -->|HTTP/WebSocket| Server
+    Server --> Agents
+    Server --> DB
+    Server --> Cache
+    Agents --> DB
+    Agents --> Cache
+    
+    subgraph "Agent System"
+        Testing[Testing Agent]
+        DevEx[DevEx Agent]
+        Data[Data Agent]
+        Infra[Infrastructure Agent]
+        Doc[Documentation Agent]
+        Orch[Orchestration Agent]
+        UI[UI Agent]
+    end

@@ -1,0 +1,241 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # ARCHON AGENT SYSTEM - 7 Specialized Agents
+  # ============================================
+
+  # Agent 1: Testing & Validation Agent
+  agent-testing:
+    build:
+      context: ./python
+      dockerfile: agents/testing/Dockerfile
+    container_name: archon-agent-testing
+    environment:
+      - AGENT_ID=testing
+      - DATABASE_URL=postgresql://archon:archon@postgres:5432/archon
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - archon-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import sys; sys.exit(0)" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Agent 2: DevEx (Developer Experience) Agent
+  agent-devex:
+    build:
+      context: ./python
+      dockerfile: agents/devex/Dockerfile
+    container_name: archon-agent-devex
+    environment:
+      - AGENT_ID=devex
+      - DATABASE_URL=postgresql://archon:archon@postgres:5432/archon
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - archon-network
+    volumes:
+      - ./python:/app:ro # Read-only for file watching
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+
+  # Agent 3: UI/Frontend Agent
+  agent-ui:
+    build:
+      context: ./python
+      dockerfile: agents/ui/Dockerfile
+    container_name: archon-agent-ui
+    environment:
+      - AGENT_ID=ui
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - archon-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          memory: 128M
+    restart: unless-stopped
+
+  # Agent 4: Documentation Agent
+  agent-documentation:
+    build:
+      context: ./python
+      dockerfile: agents/documentation/Dockerfile
+    container_name: archon-agent-documentation
+    environment:
+      - AGENT_ID=documentation
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - archon-network
+    volumes:
+      - ./docs:/app/docs
+      - ./python:/app/python:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          memory: 128M
+    restart: unless-stopped
+
+  # Agent 5: Orchestration Agent (Master Coordinator)
+  agent-orchestration:
+    build:
+      context: ./python
+      dockerfile: agents/orchestration/Dockerfile
+    container_name: archon-agent-orchestration
+    environment:
+      - AGENT_ID=orchestration
+      - DATABASE_URL=postgresql://archon:archon@postgres:5432/archon
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+      - agent-testing
+      - agent-devex
+      - agent-data
+      - agent-infrastructure
+      - agent-documentation
+      - agent-ui
+    networks:
+      - archon-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+
+  # Agent 6: Infrastructure Agent
+  agent-infrastructure:
+    build:
+      context: ./python
+      dockerfile: agents/infrastructure/Dockerfile
+    container_name: archon-agent-infrastructure
+    environment:
+      - AGENT_ID=infrastructure
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - archon-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # For Docker operations
+      - ./.github:/app/.github
+      - ./monitoring:/app/monitoring
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+
+  # Agent 7: Data & Mock Agent
+  agent-data:
+    build:
+      context: ./python
+      dockerfile: agents/data/Dockerfile
+    container_name: archon-agent-data
+    environment:
+      - AGENT_ID=data
+      - DATABASE_URL=postgresql://archon:archon@postgres:5432/archon
+      - REDIS_URL=redis://redis:6379
+      - EVENT_BUS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - archon-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          memory: 256M
+    restart: unless-stopped
+
+  # ============================================
+  # CORE INFRASTRUCTURE (from existing setup)
+  # ============================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: archon-postgres
+    environment:
+      - POSTGRES_USER=archon
+      - POSTGRES_PASSWORD=archon
+      - POSTGRES_DB=archon
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - archon-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U archon" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: archon-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - archon-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  archon-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
