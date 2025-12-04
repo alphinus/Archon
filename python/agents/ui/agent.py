@@ -80,7 +80,7 @@ export const {component_name} = () => {{
   return (
     <div className="{component_name.lower()}">
       <h1>{component_name}</h1>
-      {/* Component content */}
+      {{/* Component content */}}
     </div>
   );
 }};
