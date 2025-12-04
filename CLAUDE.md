@@ -16,6 +16,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **DRY** when appropriate
 - **YAGNI** — don't implement features that are not needed
 
+## ⛔ Hard Constraints
+
+These rules prevent common mistakes and maintain code quality. **Do not violate these without explicit discussion.**
+
+### Dependencies & Packages
+
+1. **No new npm/pip packages without user approval** - Every dependency adds complexity and potential security risks
+2. **Never downgrade existing package versions** - Could break working features
+
+### Code Quality
+
+3. **No print() statements in backend code** - Use structured logging only (`logger.info()`, `logger.error()`)
+4. **No hardcoded secrets or API keys** - Use `.env` or environment variables only
+5. **No TODO comments without GitHub issue** - If it's important enough to note, create an issue
+
+### Architecture
+
+6. **No Docker port changes without updating all documentation** - Breaks local development for other contributors
+7. **No database schema changes without migration script** - Risk of data loss or inconsistent state
+
+### Testing
+
+8. **No commits without running linters** - Run `make lint` before committing
+
 ### Error Handling
 
 **Core Principle**: In beta, we need to intelligently decide when to fail hard and fast to quickly address issues, and when to allow processes to complete in critical services despite failures. Read below carefully and make intelligent decisions on a case-by-case basis.
@@ -167,6 +191,7 @@ For code patterns and examples:
 #### Service Layer Pattern
 
 See implementation examples:
+
 - API routes: `python/src/server/api_routes/projects_api.py`
 - Service layer: `python/src/server/services/project_service.py`
 - Pattern: API Route → Service → Database
@@ -174,6 +199,7 @@ See implementation examples:
 #### Error Handling Patterns
 
 See implementation examples:
+
 - Custom exceptions: `python/src/server/exceptions.py`
 - Exception handlers: `python/src/server/main.py` (search for @app.exception_handler)
 - Service error handling: `python/src/server/services/` (various services)
@@ -219,6 +245,7 @@ See `python/.env.example` for complete list
 ### Repository Configuration
 
 Repository information (owner, name) is centralized in `python/src/server/config/version.py`:
+
 - `GITHUB_REPO_OWNER` - GitHub repository owner (default: "coleam00")
 - `GITHUB_REPO_NAME` - GitHub repository name (default: "Archon")
 

@@ -27,6 +27,9 @@ UAT/
 
 .DS_Store
 
+# Auto-generated tech stack documentation
+.context/tech_stack.json
+
 # Local release notes testing
 release-notes-*.md
 agent-work-orders-state/
