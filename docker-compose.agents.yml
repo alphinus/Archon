@@ -17,7 +17,6 @@ services:
       - REDIS_URL=redis://redis:6379
       - EVENT_BUS_URL=redis://redis:6379
       - PYTHONPATH=/app
-      - PYTHONPATH=/app
     depends_on:
       - postgres
       - redis
@@ -187,7 +186,6 @@ services:
       - DATABASE_URL=postgresql://archon:archon@postgres:5432/archon
       - REDIS_URL=redis://redis:6379
       - EVENT_BUS_URL=redis://redis:6379
-      - PYTHONPATH=/app
       - PYTHONPATH=/app
     depends_on:
       - postgres

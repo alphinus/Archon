@@ -181,7 +181,7 @@ class MonitoringSetup:
         """
         logger.info("Creating alert rules")
         
-       rules = {
+        rules = {
             "groups": [
                 {
                     "name": "archon_alerts",

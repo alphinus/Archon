@@ -385,9 +385,9 @@ async def run_agent(agent_class, agent_id: str, **kwargs) -> None:
     try:
         from src.events.bus import EventBus
         # from src.memory.system import MemorySystem  # Not available yet
-    except ImportError:
+    except ImportError as e:
         # Fallback for standalone testing without src package
-        logger.warning("Could not import src.events.bus, using mocks")
+        print(f"Could not import src.events.bus, using mocks. Error: {e}")
         
         class MockEventBus:
             async def connect(self): pass
