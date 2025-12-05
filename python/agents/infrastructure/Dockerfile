@@ -8,10 +8,15 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install uv for dependency management
+RUN pip install --no-cache-dir uv
+
 # Install dependencies
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock* ./
 COPY src /app/src
-RUN pip install --no-cache-dir -e .
+
+# Install base package and agents group
+RUN uv pip install --system --no-cache -e . --group agents
 
 # Install Infrastructure Agent specific dependencies
 RUN pip install --no-cache-dir \

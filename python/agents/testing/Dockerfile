@@ -2,10 +2,15 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+# Install uv for dependency management
+RUN pip install --no-cache-dir uv
+
 # Install dependencies
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock* ./
 COPY src /app/src
-RUN pip install --no-cache-dir -e .
+
+# Install base package and agents group (includes structlog, redis, etc.)
+RUN uv pip install --system --no-cache -e . --group agents
 
 # Install Testing Agent specific dependencies
 RUN pip install --no-cache-dir \
